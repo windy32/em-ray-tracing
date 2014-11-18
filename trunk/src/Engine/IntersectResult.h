@@ -10,7 +10,7 @@ struct IntersectResult
 {
     bool      hit;
     Geometry* geometry;
-    float     distance;
+    double    distance;
     Point     position;
 
     // The normal vector that points to the outside of the object

@@ -10,11 +10,14 @@
     <Filter Include="Geometry">
       <UniqueIdentifier>{2a189ad2-272c-47a6-b15b-db5c8b7c854d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Miscellaneous">
+      <UniqueIdentifier>{0480574b-5870-467c-be30-33730e16edd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{627deab8-3ddc-411a-8ac9-ef0a76b286b7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="IntersectResult.h" />
-    <ClInclude Include="Utils.h" />
-    <ClInclude Include="Basic\Ray.h" />
     <ClInclude Include="Accelerator.h">
       <Filter>Accelerator</Filter>
     </ClInclude>
@@ -39,15 +42,26 @@
     <ClInclude Include="Geometry.h">
       <Filter>Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="GeometrySet.h">
-      <Filter>Geometry</Filter>
-    </ClInclude>
     <ClInclude Include="Triangle.h">
       <Filter>Geometry</Filter>
     </ClInclude>
+    <ClInclude Include="IntersectResult.h">
+      <Filter>Miscellaneous</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Miscellaneous</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Ray.h">
+      <Filter>Miscellaneous</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="GridAcc.cpp">
       <Filter>Accelerator</Filter>
     </ClCompile>
@@ -69,10 +83,16 @@
     <ClCompile Include="Geometry.cpp">
       <Filter>Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="GeometrySet.cpp">
+    <ClCompile Include="Triangle.cpp">
       <Filter>Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="Triangle.cpp">
+    <ClCompile Include="Utils.cpp">
+      <Filter>Miscellaneous</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Sphere.cpp">
       <Filter>Geometry</Filter>
     </ClCompile>
   </ItemGroup>

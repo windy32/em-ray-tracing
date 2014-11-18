@@ -1,4 +1,6 @@
 #include "KdTreeAcc.h"
+#include "Triangle.h"
+#include "Sphere.h"
 #include "Utils.h"
 
 #include <algorithm>
@@ -8,25 +10,19 @@ KdTreeAcc::~KdTreeAcc()
     deleteTree(root);
 }
 
-bool cmpTriangleXAxis(const Triangle *t1, const Triangle *t2)
+bool cmpGeometryXAxis(const Geometry *g1, const Geometry *g2)
 {
-    float x1 = (t1->a.x + t1->b.x + t1->c.x) / 3;
-    float x2 = (t2->a.x + t2->b.x + t2->c.x) / 3;
-    return x1 < x2;
+    return g1->getCenter().x < g2->getCenter().x;
 }
 
-bool cmpTriangleYAxis(const Triangle *t1, const Triangle *t2)
+bool cmpGeometryYAxis(const Geometry *g1, const Geometry *g2)
 {
-    float y1 = (t1->a.y + t1->b.y + t1->c.y) / 3;
-    float y2 = (t2->a.y + t2->b.y + t2->c.y) / 3;
-    return y1 < y2;
+    return g1->getCenter().y < g2->getCenter().y;
 }
 
-bool cmpTriangleZAxis(const Triangle *t1, const Triangle *t2)
+bool cmpGeometryZAxis(const Geometry *g1, const Geometry *g2)
 {
-    float z1 = (t1->a.z + t1->b.z + t1->c.z) / 3;
-    float z2 = (t2->a.z + t2->b.z + t2->c.z) / 3;
-    return z1 < z2;
+    return g1->getCenter().z < g2->getCenter().z;
 }
 
 bool cmpKdEvent(const KdTreeAcc::KdEvent a, const KdTreeAcc::KdEvent b)
@@ -35,7 +31,7 @@ bool cmpKdEvent(const KdTreeAcc::KdEvent a, const KdTreeAcc::KdEvent b)
         ((a.position == b.position) && (int)a.type < (int)b.type);
 }
 
-void KdTreeAcc::buildKdTree(KdNode *node, std::vector<Triangle *> &list, int depth, int &numLeaves, int &leafElements)
+void KdTreeAcc::buildKdTree(KdNode *node, std::vector<Geometry *> &list, int depth, int &numLeaves, int &leafElements)
 {
 #define DUMP_TREE 0
 
@@ -61,8 +57,8 @@ void KdTreeAcc::buildKdTree(KdNode *node, std::vector<Triangle *> &list, int dep
 
     // Split the triangle list
     int axis;
-    float median;
-    float sah;
+    double median;
+    double sah;
 
 #define __STR2__(x) #x
 #define __STR1__(x) __STR2__(x)
@@ -124,23 +120,44 @@ void KdTreeAcc::buildKdTree(KdNode *node, std::vector<Triangle *> &list, int dep
         Utils::SysDbgPrint("Z (%d) split_plane = %.2f\n", list.size(), median);
 #endif
 
-    std::vector<Triangle *> leftPart;
-    std::vector<Triangle *> rightPart;
+    std::vector<Geometry *> leftPart;
+    std::vector<Geometry *> rightPart;
 
     for (unsigned int i = 0; i < list.size(); i++)
     {
-        if (list[i]->a[axis] < median ||
-            list[i]->b[axis] < median ||
-            list[i]->c[axis] < median)
+        if (list[i]->type == TRIANGLE)
         {
-            leftPart.push_back(list[i]);
-        }
+            Triangle *t = (Triangle *)list[i];
 
-        if (list[i]->a[axis] >= median ||
-            list[i]->b[axis] >= median ||
-            list[i]->c[axis] >= median)
+            if (t->a[axis] < median ||
+                t->b[axis] < median ||
+                t->c[axis] < median)
+            {
+                leftPart.push_back(t);
+            }
+
+            if (t->a[axis] >= median ||
+                t->b[axis] >= median ||
+                t->c[axis] >= median)
+            {
+                rightPart.push_back(t);
+            }
+        }
+        else if (list[i]->type == SPHERE)
         {
-            rightPart.push_back(list[i]);
+            Sphere *s = (Sphere *)list[i];
+
+            if (s->center[axis] - s->radius < median ||
+                s->center[axis] + s->radius < median )
+            {
+                leftPart.push_back(s);
+            }
+
+            if (s->center[axis] - s->radius >= median ||
+                s->center[axis] + s->radius >= median)
+            {
+                rightPart.push_back(s);
+            }
         }
     }
 
@@ -157,32 +174,30 @@ void KdTreeAcc::deleteTree(KdNode *node)
     delete node;
 }
 
-float KdTreeAcc::split(KdNode *node, int axis, std::vector<Triangle *> &list)
+double KdTreeAcc::split(KdNode *node, int axis, std::vector<Geometry *> &list)
 {
     // simple split: sort the triangle by barycenter, and select the mid value in the sorted list
     if (axis == XAxis)
     {
-        std::sort(list.begin(), list.end(), cmpTriangleXAxis);
+        std::sort(list.begin(), list.end(), cmpGeometryXAxis);
     }
     else if (axis == YAxis)
     {
-        std::sort(list.begin(), list.end(), cmpTriangleYAxis);
+        std::sort(list.begin(), list.end(), cmpGeometryYAxis);
     }
     else // ZAxis
     {
-        std::sort(list.begin(), list.end(), cmpTriangleZAxis);
+        std::sort(list.begin(), list.end(), cmpGeometryZAxis);
     }
 
     // Select the median point
-    Triangle *t = list[list.size() / 2];
-    float median = (t->a[axis] + t->b[axis] + t->c[axis]) / 3;
-    return median;
+    return list[list.size() / 2]->getCenter()[axis];
 }
 
-float KdTreeAcc::splitSAH(KdNode *node, std::vector<Triangle *> &list, int &bestAxis, float &minSAH)
+double KdTreeAcc::splitSAH(KdNode *node, std::vector<Geometry *> &list, int &bestAxis, double &minSAH)
 {
-    minSAH = FLT_MAX;
-    float minPosition;
+    minSAH = DBL_MAX;
+    double minPosition;
 
     for (int axis = 0; axis < 3; axis++)
     {
@@ -216,7 +231,7 @@ float KdTreeAcc::splitSAH(KdNode *node, std::vector<Triangle *> &list, int &best
 
         for (unsigned int i = 0; i < events.size(); )
         {
-            float position = events[i].position;
+            double position = events[i].position;
             int PS = 0; // p(+) p_start
             int PE = 0; // p(-) p_end
             int PP = 0; // p(|) p_planar
@@ -253,17 +268,17 @@ float KdTreeAcc::splitSAH(KdNode *node, std::vector<Triangle *> &list, int &best
             int prevAxis = (axis + 2) % 3; // z -> y -> x -> z ...
             Vector boxSize = Vector(node->min, node->max);
 
-            float width = node->max[axis] - node->min[axis];
-            float leftWidth = position - node->min[axis];
-            float rightWidth = node->max[axis] - position;
-            float height = boxSize[nextAxis];
-            float depth = boxSize[prevAxis];
+            double width = node->max[axis] - node->min[axis];
+            double leftWidth = position - node->min[axis];
+            double rightWidth = node->max[axis] - position;
+            double height = boxSize[nextAxis];
+            double depth = boxSize[prevAxis];
 
-            float SAL = leftWidth * height + leftWidth * depth + height * depth;
-            float SAR = rightWidth * height + rightWidth * depth + height * depth;
-            float SA = width * height + width * depth + height * depth;
+            double SAL = leftWidth * height + leftWidth * depth + height * depth;
+            double SAR = rightWidth * height + rightWidth * depth + height * depth;
+            double SA = width * height + width * depth + height * depth;
 
-            float SAH = 1 + 1.5f * ((SAL / SA) * NL + SAR / SA * (NR + NP));
+            double SAH = 1 + 1.5f * ((SAL / SA) * NL + SAR / SA * (NR + NP));
             if (SAH < minSAH)
             {
                 minSAH = SAH;
@@ -285,17 +300,16 @@ void KdTreeAcc::init()
     root = new KdNode();
 
     // Copy list
-    std::vector<Triangle *> list = *scene;
+    std::vector<Geometry *> list = *scene;
 
     // Init the boundry of the root node
-    float min_x = FLT_MAX, min_y = FLT_MAX, min_z = FLT_MAX;
-    float max_x = -FLT_MAX, max_y = -FLT_MAX, max_z = -FLT_MAX;
+    double min_x = DBL_MAX, min_y = DBL_MAX, min_z = DBL_MAX;
+    double max_x = -DBL_MAX, max_y = -DBL_MAX, max_z = -DBL_MAX;
 
     for (unsigned int i = 0; i < list.size(); i++)
     {
         Point min, max;
-        Triangle *t = list[i];
-        t->getBoundingBox(min, max);
+        list[i]->getBoundingBox(min, max);
 
         min_x = std::min(min_x, min.x);
         min_y = std::min(min_y, min.y);
@@ -322,9 +336,9 @@ void KdTreeAcc::init()
 IntersectResult KdTreeAcc::intersect(Ray &ray)
 {
     // Based on the C-pseudo code in page 157
-    float a; // entry signed distance
-    float b; // exit signed distance
-    float t; // signed distance to the splitting plane
+    double a; // entry signed distance
+    double b; // exit signed distance
+    double t; // signed distance to the splitting plane
 
     // Intersect ray with sceneBox, find the entry and exit signed distance
     Grid sceneBox(root->min, root->max);
@@ -362,7 +376,7 @@ IntersectResult KdTreeAcc::intersect(Ray &ray)
         while (currNode->axis != NoAxis)
         {
             // Retrive position of splitting plane
-            float splitVal = currNode->splitPlane;
+            double splitVal = currNode->splitPlane;
 
             // The current axis
             int axis = (int)currNode->axis;
@@ -422,7 +436,7 @@ IntersectResult KdTreeAcc::intersect(Ray &ray)
         }
 
         // Current node is the leaf, empty or full
-        float minDistance = FLT_MAX;
+        double minDistance = DBL_MAX;
         IntersectResult minResult(false);
 
         for (unsigned int i = 0; i < currNode->list.size(); i++)

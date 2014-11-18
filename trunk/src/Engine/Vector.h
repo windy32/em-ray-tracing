@@ -5,36 +5,36 @@
 
 #include <math.h>
 
-const float PI = 3.14159265359f;
+const double PI = 3.14159265359;
 
 class Point;
 
 class Vector
 {
 public:
-    float x;
-    float y;
-    float z;
+    double x;
+    double y;
+    double z;
 
 public:
-    Vector(float x = 0, float y = 0, float z = 0);
+    Vector(double x = 0, double y = 0, double z = 0);
     Vector(const Point &start, const Point &end);
 
-    float length() const;
-    float sqrLength() const;
-    float & operator[](int index);
-    const float & operator[](int index) const;
+    double length() const;
+    double sqrLength() const;
+    double & operator[](int index);
+    const double & operator[](int index) const;
 
     Vector operator+(const Vector &b) const;
     Vector operator-(const Vector &b) const;
-    Vector operator*(float b) const;
+    Vector operator*(double b) const;
     Vector mult(const Vector &b) const;
     Vector& norm();
-    float dot(const Vector &b) const;
-    float dot(const Point &p) const;
+    double dot(const Vector &b) const;
+    double dot(const Point &p) const;
     Vector cross(const Vector &b);
 
-    float angleTo(const Vector &b) const;
+    double angleTo(const Vector &b) const;
 };
 
 #endif

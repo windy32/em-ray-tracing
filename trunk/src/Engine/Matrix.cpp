@@ -1,9 +1,9 @@
 #include "Matrix.h"
 
 Matrix::Matrix(
-    float m11, float m12, float m13, 
-    float m21, float m22, float m23,
-    float m31, float m32, float m33)
+    double m11, double m12, double m13, 
+    double m21, double m22, double m23,
+    double m31, double m32, double m33)
 {
     this->m11 = m11;
     this->m12 = m12;

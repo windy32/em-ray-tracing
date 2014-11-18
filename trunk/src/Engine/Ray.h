@@ -12,7 +12,7 @@ struct Ray
     {
     }
 
-    Point getPoint(float distance) const
+    Point getPoint(double distance) const
     {
         return origin + direction * distance;
     }

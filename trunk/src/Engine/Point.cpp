@@ -1,6 +1,6 @@
 #include "Point.h"
 
-Point::Point(float x, float y, float z)
+Point::Point(double x, double y, double z)
 {
     this->x = x;
     this->y = y;
@@ -22,7 +22,7 @@ Point Point::operator+(const Vector &v) const
     return Point(x + v.x, y + v.y, z + v.z);
 }
 
-float & Point::operator[](int index)
+double & Point::operator[](int index)
 {
     if (index == 0)
         return x;
@@ -32,7 +32,7 @@ float & Point::operator[](int index)
         return z;
 }
 
-const float & Point::operator[](int index) const
+const double & Point::operator[](int index) const
 {
     if (index == 0)
         return x;

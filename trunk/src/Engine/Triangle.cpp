@@ -25,9 +25,9 @@ Triangle::Triangle(const Point &a, const Point &b, const Point &c)
     type = GeometryType::TRIANGLE;
 }
 
-static float det(float a11, float a12, float a13, 
-                 float a21, float a22, float a23, 
-                 float a31, float a32, float a33)
+static double det(double a11, double a12, double a13, 
+                  double a21, double a22, double a23, 
+                  double a31, double a32, double a33)
 {
     return 
         a11 * a22 * a33 + 
@@ -36,6 +36,52 @@ static float det(float a11, float a12, float a13,
         a13 * a22 * a31 - 
         a11 * a23 * a32 - 
         a12 * a21 * a33;
+}
+
+Point Triangle::getCenter() const
+{
+    return Point(
+        (a.x + b.x + c.x) / 3,
+        (a.y + b.y + c.y) / 3,
+        (a.z + b.z + c.z) / 3);
+}
+
+void Triangle::getBoundingBox(Point &min, Point &max)
+{
+    double min_x = DBL_MAX, min_y = DBL_MAX, min_z = DBL_MAX;
+    double max_x = -DBL_MAX, max_y = -DBL_MAX, max_z = -DBL_MAX; 
+
+    if (a.x < min_x) min_x = a.x;
+    if (b.x < min_x) min_x = b.x;
+    if (c.x < min_x) min_x = c.x;
+
+    if (a.x > max_x) max_x = a.x;
+    if (b.x > max_x) max_x = b.x;
+    if (c.x > max_x) max_x = c.x;
+
+    if (a.y < min_y) min_y = a.y;
+    if (b.y < min_y) min_y = b.y;
+    if (c.y < min_y) min_y = c.y;
+
+    if (a.y > max_y) max_y = a.y;
+    if (b.y > max_y) max_y = b.y;
+    if (c.y > max_y) max_y = c.y;
+
+    if (a.z < min_z) min_z = a.z;
+    if (b.z < min_z) min_z = b.z;
+    if (c.z < min_z) min_z = c.z;
+
+    if (a.z > max_z) max_z = a.z;
+    if (b.z > max_z) max_z = b.z;
+    if (c.z > max_z) max_z = c.z;
+
+    min.x = min_x;
+    min.y = min_y;
+    min.z = min_z;
+
+    max.x = max_x;
+    max.y = max_y;
+    max.z = max_z;
 }
 
 IntersectResult Triangle::intersect(Ray &ray)
@@ -73,41 +119,41 @@ IntersectResult Triangle::intersect(Ray &ray)
     //      | m11  m12  b1 |
     //  t = | m21  m22  b2 | / | M |
     //      | m31  m32  b3 |
-    float m11 = a.x - b.x;
-    float m21 = a.y - b.y;
-    float m31 = a.z - b.z;
+    double m11 = a.x - b.x;
+    double m21 = a.y - b.y;
+    double m31 = a.z - b.z;
 
-    float m12 = a.x - c.x;
-    float m22 = a.y - c.y;
-    float m32 = a.z - c.z;
+    double m12 = a.x - c.x;
+    double m22 = a.y - c.y;
+    double m32 = a.z - c.z;
 
-    float m13 = ray.direction.x;
-    float m23 = ray.direction.y;
-    float m33 = ray.direction.z;
+    double m13 = ray.direction.x;
+    double m23 = ray.direction.y;
+    double m33 = ray.direction.z;
 
-    float b1 = a.x - ray.origin.x;
-    float b2 = a.y - ray.origin.y;
-    float b3 = a.z - ray.origin.z;
+    double b1 = a.x - ray.origin.x;
+    double b2 = a.y - ray.origin.y;
+    double b3 = a.z - ray.origin.z;
 
-    float det_m = det(m11, m12, m13, m21, m22, m23, m31, m32, m33);
+    double det_m = det(m11, m12, m13, m21, m22, m23, m31, m32, m33);
     if (fabs(det_m) < 1e-10)
     {
         return result;
     }
 
-    float t = det(m11, m12, b1, m21, m22, b2, m31, m32, b3) / det_m;
+    double t = det(m11, m12, b1, m21, m22, b2, m31, m32, b3) / det_m;
     if (t < 0.0005f)
     {
         return result;
     }
 
-    float beta = det(b1, m12, m13, b2, m22, m23, b3, m32, m33) / det_m;
+    double beta = det(b1, m12, m13, b2, m22, m23, b3, m32, m33) / det_m;
     if (beta < -0.0001f || beta > 1.0001f) // avoid leaks
     {
         return result;
     }
 
-    float gamma = det(m11, b1, m13, m21, b2, m23, m31, b3, m33) / det_m;
+    double gamma = det(m11, b1, m13, m21, b2, m23, m31, b3, m33) / det_m;
     if (gamma < -0.0001f || gamma > 1.0001f ||
         1 - beta - gamma < -0.0001f || 1 - beta - gamma > 1.0001f)
     {
@@ -124,9 +170,9 @@ IntersectResult Triangle::intersect(Ray &ray)
 }
 
 // Utils used by intersectWithGrid()
-float getMin(const std::vector<Point> &points, Vector axis)
+double getMin(const std::vector<Point> &points, Vector axis)
 {
-    float min = FLT_MAX; 
+    double min = DBL_MAX; 
     for (unsigned int i = 0; i < points.size(); i++)
     {
         min = std::min(min, axis.dot(points[i]));
@@ -134,9 +180,9 @@ float getMin(const std::vector<Point> &points, Vector axis)
     return min;
 }
 
-float getMax(const std::vector<Point> &points, Vector axis)
+double getMax(const std::vector<Point> &points, Vector axis)
 {
-    float max = -FLT_MAX; 
+    double max = -DBL_MAX; 
     for (unsigned int i = 0; i < points.size(); i++)
     {
         max = std::max(max, axis.dot(points[i]));
@@ -199,42 +245,4 @@ bool Triangle::intersectWithGrid(const Grid &grid)
     if (!intersectOnAxis(gridPoints, trianglePoints, boxEdge3.cross(triangleEdge3))) return false;
 
     return true;
-}
-
-void Triangle::getBoundingBox(Point &min, Point &max)
-{
-    float min_x = FLT_MAX, min_y = FLT_MAX, min_z = FLT_MAX;
-    float max_x = -FLT_MAX, max_y = -FLT_MAX, max_z = -FLT_MAX; 
-
-    if (a.x < min_x) min_x = a.x;
-    if (b.x < min_x) min_x = b.x;
-    if (c.x < min_x) min_x = c.x;
-
-    if (a.x > max_x) max_x = a.x;
-    if (b.x > max_x) max_x = b.x;
-    if (c.x > max_x) max_x = c.x;
-
-    if (a.y < min_y) min_y = a.y;
-    if (b.y < min_y) min_y = b.y;
-    if (c.y < min_y) min_y = c.y;
-
-    if (a.y > max_y) max_y = a.y;
-    if (b.y > max_y) max_y = b.y;
-    if (c.y > max_y) max_y = c.y;
-
-    if (a.z < min_z) min_z = a.z;
-    if (b.z < min_z) min_z = b.z;
-    if (c.z < min_z) min_z = c.z;
-
-    if (a.z > max_z) max_z = a.z;
-    if (b.z > max_z) max_z = b.z;
-    if (c.z > max_z) max_z = c.z;
-
-    min.x = min_x;
-    min.y = min_y;
-    min.z = min_z;
-
-    max.x = max_x;
-    max.y = max_y;
-    max.z = max_z;
 }

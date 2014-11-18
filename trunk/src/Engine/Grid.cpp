@@ -1,8 +1,7 @@
 #include "Grid.h"
 #include <float.h>
 
-const float Grid::epsilon = 0.0001f;
-
+const double Grid::epsilon = 0.0001f;
 
 Grid::Grid(const Point &pos, const Vector &size)
 {
@@ -27,7 +26,7 @@ bool Grid::contains(const Point &p)
         (p.z > min.z - epsilon) && (p.z < max.z + epsilon);
 }
 
-void updateEntryExit(float &entry, float &exit, float newValue)
+void updateEntryExit(double &entry, double &exit, double newValue)
 {
     // entry   exit
     // ----------------
@@ -36,11 +35,11 @@ void updateEntryExit(float &entry, float &exit, float newValue)
     // v1      v2      <-- State 3 (new value is greater)
     // v2      v1      <-- State 3 (new value is smaller)
 
-    if (entry == FLT_MAX && exit == FLT_MAX) // State 1
+    if (entry == DBL_MAX && exit == DBL_MAX) // State 1
     {
         entry = newValue;
     }
-    else if (exit == FLT_MAX) // State 2
+    else if (exit == DBL_MAX) // State 2
     {
         if (newValue > entry)
         {
@@ -67,7 +66,7 @@ void updateEntryExit(float &entry, float &exit, float newValue)
 }
 
 // box / ray intersection
-bool Grid::intersect(const Ray &ray, float &entry, float &exit)
+bool Grid::intersect(const Ray &ray, double &entry, double &exit)
 {
     Point near = pos;
     Point far = pos + size;
@@ -78,8 +77,8 @@ bool Grid::intersect(const Ray &ray, float &entry, float &exit)
     // Case 4. Plane y = far.y
     // Case 5. Plane z = near.z
     // Case 6. Plane z = far.z
-    entry = FLT_MAX;
-    exit = FLT_MAX;
+    entry = DBL_MAX;
+    exit = DBL_MAX;
 
     for (int axis = 0; axis < 3; axis++)
     {
@@ -89,7 +88,7 @@ bool Grid::intersect(const Ray &ray, float &entry, float &exit)
         if (fabs(ray.direction[axis]) > 1e-10)
         {
             // near
-            float distance = (near[axis] - ray.origin[axis]) / ray.direction[axis];
+            double distance = (near[axis] - ray.origin[axis]) / ray.direction[axis];
             Point p = ray.getPoint(distance);
             if (p[nextAxis] >= near[nextAxis] && 
                 p[nextAxis] <= far[nextAxis] &&
@@ -112,5 +111,5 @@ bool Grid::intersect(const Ray &ray, float &entry, float &exit)
         }
     }
 
-    return entry != FLT_MAX;
+    return entry != DBL_MAX;
 }
