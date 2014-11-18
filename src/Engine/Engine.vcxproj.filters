@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Accelerator">
+      <UniqueIdentifier>{161d964d-04c1-47ea-b7d2-1abd912ce815}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Basic">
+      <UniqueIdentifier>{7837d23f-0d20-4a39-a3b7-4ec1c0b4fc41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Geometry">
+      <UniqueIdentifier>{2a189ad2-272c-47a6-b15b-db5c8b7c854d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IntersectResult.h" />
+    <ClInclude Include="Utils.h" />
+    <ClInclude Include="Basic\Ray.h" />
+    <ClInclude Include="Accelerator.h">
+      <Filter>Accelerator</Filter>
+    </ClInclude>
+    <ClInclude Include="GridAcc.h">
+      <Filter>Accelerator</Filter>
+    </ClInclude>
+    <ClInclude Include="KdTreeAcc.h">
+      <Filter>Accelerator</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid.h">
+      <Filter>Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix.h">
+      <Filter>Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="Point.h">
+      <Filter>Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector.h">
+      <Filter>Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometrySet.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="GridAcc.cpp">
+      <Filter>Accelerator</Filter>
+    </ClCompile>
+    <ClCompile Include="KdTreeAcc.cpp">
+      <Filter>Accelerator</Filter>
+    </ClCompile>
+    <ClCompile Include="Grid.cpp">
+      <Filter>Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix.cpp">
+      <Filter>Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="Point.cpp">
+      <Filter>Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector.cpp">
+      <Filter>Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometrySet.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Triangle.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
