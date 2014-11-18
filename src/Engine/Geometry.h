@@ -4,7 +4,7 @@
 #include "Ray.h"
 #include "IntersectResult.h"
 
-enum GeometryType { PLANE, TRIANGLE, TUNNEL, SET };
+enum GeometryType { TRIANGLE, SPHERE };
 
 class Geometry
 {
@@ -14,6 +14,8 @@ public:
 public:
     Geometry();
     virtual ~Geometry();
+    virtual Point getCenter() const = 0;
+    virtual void getBoundingBox(Point &min, Point &max) = 0;
     virtual IntersectResult intersect(Ray &ray) = 0;
 };
 

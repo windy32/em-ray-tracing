@@ -8,16 +8,16 @@ class Vector;
 class Point
 {
 public:
-    float x;
-    float y;
-    float z;
+    double x;
+    double y;
+    double z;
 
 public:
-    Point(float x = 0, float y = 0, float z = 0);
+    Point(double x = 0, double y = 0, double z = 0);
 
     Point operator+(const Vector &v) const;
-    float & operator[](int index);
-    const float & operator[](int index) const;
+    double & operator[](int index);
+    const double & operator[](int index) const;
 };
 
 #endif

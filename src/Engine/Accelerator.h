@@ -2,15 +2,15 @@
 #define ACCELERATOR_H
 
 #include <vector>
-#include "Triangle.h"
+#include "Geometry.h"
 
 class Accelerator 
 {
 protected:
-    std::vector<Triangle *> *scene;
+    std::vector<Geometry *> *scene;
 
 public:
-    Accelerator(std::vector<Triangle *> *scene) : scene(scene) {}
+    Accelerator(std::vector<Geometry *> *scene) : scene(scene) {}
     virtual void init() = 0;
     virtual IntersectResult intersect(Ray &ray) = 0;
 };

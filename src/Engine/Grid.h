@@ -7,7 +7,7 @@
 class Grid
 {
 private:
-    static const float epsilon;
+    static const double epsilon;
 
 public:
     Point pos;
@@ -17,7 +17,7 @@ public:
     Grid(const Point &pos, const Vector &size);
     Grid(const Point &near, const Point &far);
     bool contains(const Point &p);
-    bool intersect(const Ray &ray, float &entry, float &exit);
+    bool intersect(const Ray &ray, double &entry, double &exit);
 };
 
 #endif

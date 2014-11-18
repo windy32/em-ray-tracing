@@ -15,7 +15,7 @@ private:
         KdNode *left;  // pointer to the left child
         KdNode *right; // pointer to the right child
         Axes axis;         // orientation of the splitting plane
-        float splitPlane;  // position of the splitting plane
+        double splitPlane;  // position of the splitting plane
 
         Point min;
         Point max;
@@ -25,7 +25,7 @@ private:
     struct StackElem
     {
         KdNode *node;  // pointer of far child
-        float t;           // the entry / exit signed distance
+        double t;           // the entry / exit signed distance
         Point pb;          // the coordinates of entry / exit point
         int prev;          // the pointer to the previous stack item
     };
@@ -33,22 +33,22 @@ private:
 public: // should be exposed to the compare functions for sorting
     struct KdEvent
     {
-        Triangle *triangle;
-        float position;
+        Geometry *triangle;
+        double position;
         KdEventType type;
 
-        KdEvent(Triangle *triangle, float position, KdEventType type) : 
+        KdEvent(Geometry *triangle, double position, KdEventType type) : 
             triangle(triangle), position(position), type(type) {}
     };
 
 private:
-    void buildKdTree(KdNode *node, std::vector<Triangle *> &list, int depth, int &numLeaves, int &leafElements);
+    void buildKdTree(KdNode *node, std::vector<Geometry *> &list, int depth, int &numLeaves, int &leafElements);
     void deleteTree(KdNode *node);
-    float split(KdNode *node, int axis, std::vector<Triangle *> &list);
-    float splitSAH(KdNode *node, std::vector<Triangle *> &list, int &bestAxis, float &minSAH);
+    double split(KdNode *node, int axis, std::vector<Geometry *> &list);
+    double splitSAH(KdNode *node, std::vector<Geometry *> &list, int &bestAxis, double &minSAH);
 
 public:
-    KdTreeAcc(std::vector<Triangle *> *scene) : Accelerator(scene) {}
+    KdTreeAcc(std::vector<Geometry *> *scene) : Accelerator(scene) {}
     ~KdTreeAcc();
     virtual void init();
     virtual IntersectResult intersect(Ray &ray);
