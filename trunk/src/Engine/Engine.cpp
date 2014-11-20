@@ -1,6 +1,8 @@
 #include "GridAcc.h"
 #include "KdTreeAcc.h"
 #include "Triangle.h"
+#include "Sphere.h"
+#include "Ray.h"
 #include "Engine.h"
 
 // Scene
@@ -8,7 +10,7 @@ std::vector<Geometry *> scene;
 
 // Preprocessing
 RtPreprocessMethod method;
-GridAcc *accGrid = NULL;
+GridAcc *accGrid = NULL; // TODO: Use Accelerator *
 KdTreeAcc *accKdTree = NULL;
 
 // Tx point
@@ -170,10 +172,105 @@ void SetParameters(
 
 bool Simulate()
 {
+    // Add rx spheres (to scene)
+    for (unsigned int i = 0; i < rxPoints.size(); i++)
+    {
+        scene.push_back(new RxSphere(rxPoints[i], rxRadius, i));
+    }
+
+    // Preprocess
+    if (method == Linear)
+    {
+        // Nothing to do here
+    }
+    else if (method == Grid)
+    {
+        accGrid->init();
+    }
+    else if (method == KdTree)
+    {
+        accKdTree->init();
+    }
+    else
+    {
+        fprintf(stderr, "Error: Unknown preprocess method\n");
+        return false;
+    }
+
     // TODO: print warning messages
-    //       when part of the parameters have not been specified
+    //       when other parameters have not been specified
+
+    // Generate rays
+    // ray spacing = 60 degree
+    //        0     60    120   180   240   300
+    // theta: o-----o-----o-----o-----o-----o-----x
+    //        0     60    120   180
+    // phi:   o-----o-----o-----o
+    int nTheta = (int)(360.0 / parameters.raySpacing + 0.5);
+    int nPhi = (int)(180.0 / parameters.raySpacing + 0.5);
+
+    for (int i = 0; i < nTheta; i++)
+    {
+        for (int j = 0; j <= nPhi; j++)
+        {
+            double theta = i * PI * 2.0 / nTheta;
+            double phi = j * PI / nPhi;
+
+            Ray ray(txPoint, Vector(
+                sin(phi) * cos(theta), 
+                sin(phi) * sin(theta), 
+                cos(phi)));
+            // ...
+        }
+    }
+
     return true;
 }
+
+/*
+Color trace(GeometrySet &scene, Ray &r, int depth, unsigned short *Xi, RenderSetting &setting)
+{
+    IntersectResult result = scene.intersect(r);
+    if (!result.hit)
+    {
+        return Color::Black();
+    }
+
+    Geometry *obj = result.geometry;
+    Point &p = result.position;
+    Vector &n = result.normal; // points to the outside
+    Vector nl = (n.dot(r.direction) < 0) ? n : n * -1; // points to the ray
+    Color local = obj->material->local(r, p, result.normal);
+
+    if (++depth > setting.maxDepth)
+        return Color::Black();
+
+    if (depth > 100) // add a hard limit and avoid stack overflow
+        return Color::Black();
+
+    float diffusiveness = obj->material->diffusiveness;
+    float reflectiveness = obj->material->reflectiveness;
+    float refractiveness = obj->material->refractiveness;
+    Color diffusive;
+    Color reflective;
+
+    if (diffusiveness > 0)
+    {
+        diffusive = local;
+    }
+    
+    if (reflectiveness > 0)
+    {
+        Vector v = r.direction - nl * 2 * nl.dot(r.direction);
+        Ray newRay(p, v);
+        newRay.context = r.context;
+        reflective = trace(scene, newRay, depth, Xi, setting);
+    }
+
+    return diffusive * diffusiveness + 
+        reflective * reflectiveness;
+}
+*/
 
 bool GetRxPowers(double *powers, int n)
 {

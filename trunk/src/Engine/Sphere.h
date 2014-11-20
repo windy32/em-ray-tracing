@@ -16,4 +16,13 @@ public:
     virtual IntersectResult intersect(Ray &ray);
 };
 
+class RxSphere : public Sphere
+{
+public:
+    int index;
+
+public:
+    RxSphere(const Point &center, double radius, int index);
+};
+
 #endif
