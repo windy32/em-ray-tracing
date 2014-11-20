@@ -5,7 +5,7 @@
 
 #include <math.h>
 
-const double PI = 3.14159265359;
+const double PI = 3.14159265358979324;
 
 class Point;
 

@@ -51,3 +51,8 @@ IntersectResult Sphere::intersect(Ray &ray)
     }
     return result;
 }
+
+RxSphere::RxSphere(const Point &center, double radius, int index) : Sphere(center, radius)
+{
+    this->index = index;
+}
