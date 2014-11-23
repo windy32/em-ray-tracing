@@ -501,51 +501,6 @@ bool Simulate()
     return true;
 }
 
-/*
-Color trace(GeometrySet &scene, Ray &r, int depth, unsigned short *Xi, RenderSetting &setting)
-{
-    IntersectResult result = scene.intersect(r);
-    if (!result.hit)
-    {
-        return Color::Black();
-    }
-
-    Geometry *obj = result.geometry;
-    Point &p = result.position;
-    Vector &n = result.normal; // points to the outside
-    Vector nl = (n.dot(r.direction) < 0) ? n : n * -1; // points to the ray
-    Color local = obj->material->local(r, p, result.normal);
-
-    if (++depth > setting.maxDepth)
-        return Color::Black();
-
-    if (depth > 100) // add a hard limit and avoid stack overflow
-        return Color::Black();
-
-    float diffusiveness = obj->material->diffusiveness;
-    float reflectiveness = obj->material->reflectiveness;
-    float refractiveness = obj->material->refractiveness;
-    Color diffusive;
-    Color reflective;
-
-    if (diffusiveness > 0)
-    {
-        diffusive = local;
-    }
-    
-    if (reflectiveness > 0)
-    {
-        Vector v = r.direction - nl * 2 * nl.dot(r.direction);
-        Ray newRay(p, v);
-        newRay.context = r.context;
-        reflective = trace(scene, newRay, depth, Xi, setting);
-    }
-
-    return diffusive * diffusiveness + 
-        reflective * reflectiveness;
-}
-*/
-
 bool GetRxPowers(double *powers, int n)
 {
     return true;
