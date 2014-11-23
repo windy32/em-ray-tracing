@@ -6,6 +6,9 @@ struct RtPoint
     double x;
     double y;
     double z;
+
+    RtPoint() {}
+    RtPoint(double x, double y, double z) : x(x), y(y), z(z) {}
 };
 
 struct RtVector
@@ -13,6 +16,9 @@ struct RtVector
     double x;
     double y;
     double z;
+
+    RtVector() {}
+    RtVector(double x, double y, double z) : x(x), y(y), z(z) {}
 };
 
 struct RtTriangle
