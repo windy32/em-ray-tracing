@@ -108,4 +108,9 @@
       <Filter>Basic</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Engine.def">
+      <Filter>Engine</Filter>
+    </None>
+  </ItemGroup>
 </Project>
