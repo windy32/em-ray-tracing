@@ -36,8 +36,7 @@ void AddTriangle(const RtTriangle &triangle);
 void AddTriangles(const RtTriangle *triangles, int n);
 bool AddStlModel(const char *filename); // TODO: add unicode version
 
-bool Preprocess(RtPreprocessMethod m);
-
+bool SetPreprocessMethod(RtPreprocessMethod method);
 void SetTxPoint(const RtPoint &point, double power); // power in dBm
 void SetRxPoints(const RtPoint *points, int n, double radius); // radius in meters
 

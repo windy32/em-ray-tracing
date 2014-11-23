@@ -80,7 +80,7 @@ double Vector::dot(const Point &p) const
     return x * p.x + y * p.y + z * p.z;
 }
 
-Vector Vector::cross(const Vector &b)
+Vector Vector::cross(const Vector &b) const
 {
     return Vector(y * b.z - z * b.y, z * b.x - x * b.z, x * b.y - y * b.x);
 }

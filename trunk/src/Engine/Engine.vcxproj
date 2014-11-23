@@ -77,12 +77,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Accelerator.h" />
+    <ClInclude Include="Complex.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="GridAcc.h" />
     <ClInclude Include="IntersectResult.h" />
     <ClInclude Include="KdTreeAcc.h" />
+    <ClInclude Include="LinearAcc.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Ray.h" />
@@ -92,11 +94,13 @@
     <ClInclude Include="Vector.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Complex.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="GridAcc.cpp" />
     <ClCompile Include="KdTreeAcc.cpp" />
+    <ClCompile Include="LinearAcc.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Sphere.cpp" />

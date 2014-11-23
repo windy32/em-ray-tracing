@@ -60,6 +60,12 @@
     <ClInclude Include="Ray.h">
       <Filter>Miscellaneous</Filter>
     </ClInclude>
+    <ClInclude Include="LinearAcc.h">
+      <Filter>Accelerator</Filter>
+    </ClInclude>
+    <ClInclude Include="Complex.h">
+      <Filter>Basic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GridAcc.cpp">
@@ -94,6 +100,12 @@
     </ClCompile>
     <ClCompile Include="Sphere.cpp">
       <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="LinearAcc.cpp">
+      <Filter>Accelerator</Filter>
+    </ClCompile>
+    <ClCompile Include="Complex.cpp">
+      <Filter>Basic</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

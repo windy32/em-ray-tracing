@@ -8,7 +8,13 @@ struct Ray
     Point origin;
     Vector direction;
 
-    Ray(const Point &origin, const Vector &direction) : origin(origin), direction(direction)
+    // state & history information
+    enum RayState { Start, FirstReflect, MoreReflect } state;
+    double prev_mileage;
+    Point  prev_point;
+
+    Ray(const Point &origin, const Vector &direction) 
+        : origin(origin), direction(direction), state(Start), prev_mileage(0), prev_point(origin)
     {
     }
 

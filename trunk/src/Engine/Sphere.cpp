@@ -44,7 +44,8 @@ IntersectResult Sphere::intersect(Ray &ray)
         {
             result.hit = true;
             result.geometry = this;
-            result.distance = (-b - delta >= 0.0005f) ? -b - delta : -b + delta;
+            //result.distance = (-b - delta >= 0.0005f) ? -b - delta : -b + delta;
+            result.distance = -b; // in the SBR algorithm, there should be only one intersection
             result.position = ray.getPoint(result.distance);
             result.normal = Vector(center, result.position).norm();
         }

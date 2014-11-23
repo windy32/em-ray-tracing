@@ -32,7 +32,7 @@ public:
     Vector& norm();
     double dot(const Vector &b) const;
     double dot(const Point &p) const;
-    Vector cross(const Vector &b);
+    Vector cross(const Vector &b) const;
 
     double angleTo(const Vector &b) const;
 };
