@@ -22,7 +22,7 @@ private:
 public:
     GridAcc(std::vector<Geometry *> *scene) : Accelerator(scene) {}
     virtual void init();
-    virtual IntersectResult intersect(Ray &ray);
+    virtual IntersectResult intersect(Ray &ray, std::vector<RxIntersection> &rxPoints);
 };
 
 #endif

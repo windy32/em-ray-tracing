@@ -3,8 +3,26 @@
 
 #include "Vector.h"
 #include "Geometry.h"
+#include <map>
 
 class Geometry;
+
+//        rx sphere 1   rx sphere 2    /
+//           +----+      +----+       /
+// --------->|    |----->|    |----->/ intersection point
+//  ray      +----+      +----+     /
+//                                 /
+struct RxIntersection
+{
+    double distance;
+    int index;
+
+    RxIntersection(int index, double distance)
+    {
+        this->index = index;
+        this->distance = distance;
+    }
+};
 
 struct IntersectResult
 {

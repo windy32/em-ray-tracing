@@ -12,7 +12,7 @@ protected:
 public:
     Accelerator(std::vector<Geometry *> *scene) : scene(scene) {}
     virtual void init() = 0;
-    virtual IntersectResult intersect(Ray &ray) = 0;
+    virtual IntersectResult intersect(Ray &ray, std::vector<RxIntersection> &rxPoints) = 0;
 };
 
 #endif

@@ -333,7 +333,7 @@ void KdTreeAcc::init()
 
 // The recursive ray traversal algorithm TA_rec_B for the k-d tree
 // "Heuristic Ray Shooting Algorithms" by Vlastimil Vavran (Appendix C)
-IntersectResult KdTreeAcc::intersect(Ray &ray)
+IntersectResult KdTreeAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPoints)
 {
     // Based on the C-pseudo code in page 157
     double a; // entry signed distance
@@ -368,6 +368,8 @@ IntersectResult KdTreeAcc::intersect(Ray &ray)
     stack[exPt].t = b;
     stack[exPt].pb = ray.origin + ray.direction * b;
     stack[exPt].node = NULL; // Termination flag
+
+    std::map<int, double> rxIntersections;
 
     // Loop, traverse through the whole kd-tree
     while (currNode != NULL)
@@ -442,18 +444,40 @@ IntersectResult KdTreeAcc::intersect(Ray &ray)
         for (unsigned int i = 0; i < currNode->list.size(); i++)
         {
             IntersectResult result = currNode->list[i]->intersect(ray);
-            if (result.hit && 
+            if (result.hit &&
                 result.distance >= stack[enPt].t - 0.001f && 
-                result.distance <= stack[exPt].t + 0.001f &&
-                result.distance < minDistance)
+                result.distance <= stack[exPt].t + 0.001f)
             {
-                minResult = result;
-                minDistance = result.distance;
+                if (result.geometry->type == SPHERE && // rx sphere
+                    result.distance < minDistance)
+                {
+                    RxSphere *s = (RxSphere *)result.geometry;
+                    rxIntersections[s->index] = result.distance;
+                }
+                else // triangle
+                {
+                    if (result.distance < minDistance) 
+                    {
+                        minDistance = result.distance;
+                        minResult = result;
+                    }
+                }
             }
         }
         
         if (minResult.hit)
+        {
+            std::map<int, double>::iterator it;
+            for (it = rxIntersections.begin(); it != rxIntersections.end(); ++it)
+            {
+                if (it->second < minDistance)
+                {
+                    rxPoints.push_back(RxIntersection(it->first, it->second));
+                }
+            }
+        
             return minResult;
+        }
 
         // Pop from stack
         enPt = exPt; // The signed distance intervals are adjacent
@@ -463,6 +487,13 @@ IntersectResult KdTreeAcc::intersect(Ray &ray)
         currNode = stack[exPt].node;
 
         exPt = stack[enPt].prev;
+    }
+
+    // Intersect with no triangles
+    std::map<int, double>::iterator it;
+    for (it = rxIntersections.begin(); it != rxIntersections.end(); ++it)
+    {
+        rxPoints.push_back(RxIntersection(it->first, it->second));
     }
 
     // currNode = NULL, ray leaves the scene

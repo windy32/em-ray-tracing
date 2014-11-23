@@ -1,6 +1,7 @@
 #include "GridAcc.h"
 #include "Grid.h"
 #include "Utils.h"
+#include "Sphere.h"
 
 std::vector<Geometry *> &GridAcc::get(int x, int y, int z)
 {
@@ -113,7 +114,7 @@ void GridAcc::init()
 #endif
 }
 
-IntersectResult GridAcc::intersect(Ray &ray)
+IntersectResult GridAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPoints)
 {
     Point near = origin;
     Point far = origin + Vector(
@@ -156,6 +157,8 @@ IntersectResult GridAcc::intersect(Ray &ray)
         getIndexInGrid(ray.origin, cur_i, cur_j, cur_k);
     }
 
+    std::map<int, double> rxIntersections;
+
     // Start traversing the grid
     while (true)
     {
@@ -167,15 +170,38 @@ IntersectResult GridAcc::intersect(Ray &ray)
         for (unsigned int i = 0; i < list.size(); i++)
         {
             IntersectResult result = list[i]->intersect(ray);
-            if (result.hit && result.distance < minDistance)
+            if (result.hit)
             {
-                minResult = result;
-                minDistance = result.distance;
+                if (result.geometry->type == SPHERE && // rx sphere
+                    result.distance < minDistance)
+                {
+                    RxSphere *s = (RxSphere *)result.geometry;
+                    rxIntersections[s->index] = result.distance;
+                }
+                else // triangle
+                {
+                    if (result.distance < minDistance) 
+                    {
+                        minDistance = result.distance;
+                        minResult = result;
+                    }
+                }
             }
         }
 
         if (minResult.hit)
+        {
+            std::map<int, double>::iterator it;
+            for (it = rxIntersections.begin(); it != rxIntersections.end(); ++it)
+            {
+                if (it->second < minDistance)
+                {
+                    rxPoints.push_back(RxIntersection(it->first, it->second));
+                }
+            }
+        
             return minResult; // There's a bug here, which should be fixed later
+        }
 
         // Advance to the next cell with the 3D version of the DDA algorithm
         // http://en.wikipedia.org/wiki/Digital_differential_analyzer_(graphics_algorithm)
@@ -261,6 +287,13 @@ IntersectResult GridAcc::intersect(Ray &ray)
         {
             break;
         }
+    }
+
+    // Intersect with no triangles
+    std::map<int, double>::iterator it;
+    for (it = rxIntersections.begin(); it != rxIntersections.end(); ++it)
+    {
+        rxPoints.push_back(RxIntersection(it->first, it->second));
     }
 
     return IntersectResult(false);

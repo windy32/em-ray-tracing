@@ -51,7 +51,7 @@ public:
     KdTreeAcc(std::vector<Geometry *> *scene) : Accelerator(scene) {}
     ~KdTreeAcc();
     virtual void init();
-    virtual IntersectResult intersect(Ray &ray);
+    virtual IntersectResult intersect(Ray &ray, std::vector<RxIntersection> &rxPoints);
 };
 
 #endif
