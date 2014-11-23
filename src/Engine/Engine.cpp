@@ -8,6 +8,7 @@
 #include "Matrix.h"
 #include "Complex.h"
 
+#include "Utils.h"
 #include "Engine.h"
 
 // Scene
@@ -16,13 +17,61 @@ std::vector<Geometry *> scene;
 // Preprocessing
 Accelerator *accelerator = NULL;
 
-// Tx point
+// Tx pointhy
 Point txPoint;
 double txPower;
 
+// Rx field
+struct EFields
+{
+    std::map<int, std::vector<ComplexVector> > mapping;
+
+    void AddField(int reflections, const ComplexVector &vector)
+    {
+        if (mapping.count(reflections) == 0)
+        {
+            mapping[reflections] = std::vector<ComplexVector>();
+        }
+        mapping[reflections].push_back(vector);
+    }
+
+    ComplexVector Sum()
+    {
+        ComplexVector sum(
+            ComplexNumber(0, 0),
+            ComplexNumber(0, 0),
+            ComplexNumber(0, 0));
+
+        if (mapping.size() == 0)
+        {
+            return sum;
+        }
+        else
+        {
+            std::map<int, std::vector<ComplexVector> >::iterator it;
+            for (it = mapping.begin(); it != mapping.end(); ++it) // for each number of reflections
+            {
+                int reflections = it->first;
+                ComplexVector avr(
+                    ComplexNumber(0, 0),
+                    ComplexNumber(0, 0),
+                    ComplexNumber(0, 0)); // calculate average field
+
+                for (unsigned int i = 0; i < it->second.size(); i++)
+                {
+                    avr = avr + it->second[i];
+                }
+                avr = avr * (1.0 / it->second.size());
+                sum = sum + avr;
+            }
+            return sum;
+        }
+    }
+};
+
 // Rx points
 std::vector<Point> rxPoints;
-std::vector<std::vector<ComplexVector> > rxFields;
+std::vector<EFields> rxFields;
 double rxRadius;
 
 // Other parameters
@@ -42,6 +91,9 @@ struct RtParameter
 
 void Initialize()
 {
+    Utils::StartTimer();
+    Utils::PrintTime("Initialize");
+
     scene.clear();
 }
 
@@ -131,14 +183,17 @@ bool SetPreprocessMethod(RtPreprocessMethod method)
     if (method == Linear)
     {
         accelerator = new LinearAcc(&scene);
+        fprintf(stderr, "    Preprocess method: Linear\n");
     }
     else if (method == Grid)
     {
         accelerator = new GridAcc(&scene);
+        fprintf(stderr, "    Preprocess method: Grid\n");
     }
     else if (method == KdTree)
     {
         accelerator = new KdTreeAcc(&scene);
+        fprintf(stderr, "    Preprocess method: Kd-tree\n");
     }
     else
     {
@@ -153,6 +208,8 @@ void SetTxPoint(const RtPoint &point, double power)
 {
     txPoint = Point(point.x, point.y, point.z);
     txPower = power;
+    fprintf(stderr, "    Tx Point: (%.2lf, %.2lf, %.2lf)\n", point.x, point.y, point.z);
+    fprintf(stderr, "    Tx Power: %.2lf dBm\n", power);
 }
 
 void SetRxPoints(const RtPoint *points, int n, double radius)
@@ -163,6 +220,8 @@ void SetRxPoints(const RtPoint *points, int n, double radius)
         rxPoints.push_back(Point(points[i].x, points[i].y, points[i].z));
     }
     rxRadius = radius;
+    fprintf(stderr, "    Number of Rx Points: %d\n", n);
+    fprintf(stderr, "    Rx Sphere Radius = %.2lf\n", radius);
 }
 
 void SetParameters(
@@ -174,6 +233,13 @@ void SetParameters(
     parameters.maxReflections = maxReflections;
     parameters.raySpacing = raySpacing;
     parameters.frequency = frequency;
+
+    fprintf(stderr, "    Parameters:\n");
+    fprintf(stderr, "      - Permittivity: %.2lf\n", permittivity);
+    fprintf(stderr, "      - Conductivity: %.5lf\n", conductivity);
+    fprintf(stderr, "      - Max reflections: %d\n", maxReflections);
+    fprintf(stderr, "      - Ray spacing: %.3lf degrees\n", raySpacing);
+    fprintf(stderr, "      - Frequency: %.1lf\n", frequency);
 }
 
 void calc_fresnel_coeff(double psi, ComplexNumber &RH, ComplexNumber &RV)
@@ -351,6 +417,16 @@ ComplexVector calc_field_reflect(Ray &r, const IntersectResult &result, const Co
     return Er;
 }
 
+double calc_power(const ComplexVector &E)
+{
+    double norm_sqr = 
+        E.x.a * E.x.a + E.x.b * E.x.b +
+        E.y.a * E.y.a + E.y.b * E.y.b +
+        E.z.a * E.z.a + E.z.b * E.z.b;
+    double watt = parameters.lamda * parameters.lamda / (8.0 * PI * 377.0) * norm_sqr;
+    return 10 * log10(watt) + 30.0; // dBm
+}
+
 void trace(Ray &r, int depth, const ComplexVector &E) // trace with initial field
 {
     std::vector<RxIntersection> rxSpheres;
@@ -367,7 +443,7 @@ void trace(Ray &r, int depth, const ComplexVector &E) // trace with initial fiel
             ComplexVector Ez = calc_field_direct(r, rxSpheres[i].distance, E);
 
             // Add to field list
-            rxFields[rxSpheres[i].index].push_back(Ez);
+            rxFields[rxSpheres[i].index].AddField(depth, Ez);
         }
     }
 
@@ -419,7 +495,7 @@ void trace(Ray &r, int depth)
                 ComplexVector Ez = calc_field_direct(r, rxSpheres[i].distance);
 
                 // Add to field list
-                rxFields[rxSpheres[i].index].push_back(Ez);
+                rxFields[rxSpheres[i].index].AddField(0, Ez);
             }
         }
     }
@@ -464,7 +540,7 @@ bool Simulate()
         scene.push_back(new RxSphere(rxPoints[i], rxRadius, i));
 
         // Initialize containers for fields
-        rxFields.push_back(std::vector<ComplexVector>());
+        rxFields.push_back(EFields());
     }
 
     // Calculate automatic parameters
@@ -472,7 +548,9 @@ bool Simulate()
     parameters.k = 2 * PI / parameters.lamda;
 
     // Preprocess
+    Utils::PrintTime("Preprocessing started");
     accelerator->init();
+    Utils::PrintTime("Preprocessing finished");
 
     // TODO: print warning messages
     //       when other parameters have not been specified
@@ -496,12 +574,27 @@ bool Simulate()
             Ray ray(txPoint, Vector(sin(phi) * cos(theta), sin(phi) * sin(theta), cos(phi)));
             trace(ray, 0);
         }
+        fprintf(stderr, "\rSimulating [%d / %d]", i + 1, nTheta);
     }
+    fprintf(stderr, "\n");
 
     return true;
 }
 
-bool GetRxPowers(double *powers, int n)
+void GetRxPowers(double *powers, int n)
 {
-    return true;
+    for (unsigned int i = 0; i < rxFields.size(); i++) // for each rx point
+    {
+        ComplexVector sum = rxFields[i].Sum();
+        if (sum.x.a == 0 && sum.x.b == 0 &&
+            sum.y.a == 0 && sum.y.b == 0 &&
+            sum.z.a == 0 && sum.z.b == 0)
+        {
+            powers[i] = txPower - 250.0;
+        }
+        else
+        {
+            powers[i] = calc_power(sum);
+        }
+    }
 }

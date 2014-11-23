@@ -5,6 +5,7 @@ Sphere::Sphere(const Point &center, double radius)
 {
     this->center = center;
     this->radius = radius;
+    type = GeometryType::SPHERE;
 }
 
 Point Sphere::getCenter() const

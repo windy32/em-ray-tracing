@@ -43,6 +43,7 @@ public:
     ComplexVector(ComplexNumber x, ComplexNumber y, ComplexNumber z);
 
     ComplexVector operator+(const ComplexVector &v);
+    ComplexVector operator*(double v);
 };
 
 #endif
