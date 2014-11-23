@@ -97,3 +97,8 @@ ComplexVector ComplexVector::operator+(const ComplexVector &v)
 {
     return ComplexVector(x + v.x, y + v.y, z + v.z);
 }
+
+ComplexVector ComplexVector::operator*(double v)
+{
+    return ComplexVector(x * v, y * v, z * v);
+}

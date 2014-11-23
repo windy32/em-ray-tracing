@@ -55,6 +55,6 @@ void SetParameters(
     );
 
 bool Simulate();
-bool GetRxPowers(double *powers, int n);
+void GetRxPowers(double *powers, int n);
 
 #endif

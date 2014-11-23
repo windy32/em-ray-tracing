@@ -23,7 +23,7 @@ void GridAcc::getIndexInGrid(const Point &p, int &i, int &j, int&k)
 
 void GridAcc::init()
 {
-    Utils::PrintTickCount("Initialize Grid");
+    Utils::PrintTime("Initialize Grid");
 
     // 1. Get the range of the triangles
     double min_x = DBL_MAX, min_y = DBL_MAX, min_z = DBL_MAX;

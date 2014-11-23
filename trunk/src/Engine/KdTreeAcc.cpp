@@ -295,7 +295,7 @@ double KdTreeAcc::splitSAH(KdNode *node, std::vector<Geometry *> &list, int &bes
 
 void KdTreeAcc::init()
 {
-    Utils::PrintTickCount("Initialize k-d tree");
+    Utils::PrintTime("Initialize k-d tree");
 
     root = new KdNode();
 

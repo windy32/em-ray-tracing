@@ -49,5 +49,4 @@ IntersectResult LinearAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPo
     }
 
     return minResult;
-
 }

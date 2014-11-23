@@ -5,12 +5,19 @@
 #include <stdio.h>
 #include "Utils.h"
 
+int Utils::startTime;
+
+void Utils::StartTimer()
+{
+    startTime = GetTickCount();
+}
+
 int Utils::GetTickCount()
 {
     return (int)::GetTickCount();
 }
 
-void Utils::DbgPrint(char *format, ...)
+void Utils::DbgPrint(const char *format, ...)
 {
     char buf[1024];
     va_list argList;
@@ -22,10 +29,16 @@ void Utils::DbgPrint(char *format, ...)
     va_end(argList);
 }
 
-void Utils::PrintTickCount(char *desc)
+void Utils::PrintTickCount(const char *desc)
 {
-    DWORD tickCount = GetTickCount();
+    int tickCount = GetTickCount();
     fprintf(stderr, "%s: %.2lf\n", desc, tickCount / 1000.0);
+}
+
+void Utils::PrintTime(const char *desc)
+{
+    double time = (GetTickCount() - startTime) / 1000.0;
+    fprintf(stderr, "%s: %.2lf\n", desc, time);
 }
 
 int Utils::GetMemorySize()
