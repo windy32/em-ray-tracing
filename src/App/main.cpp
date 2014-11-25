@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     // 2. do not add any triangle
 
     // 3. set preprocessing method
-    SetPreprocessMethod(RtPreprocessMethod::Linear);
+    SetPreprocessMethod(RtPreprocessMethod::KdTree);
 
     // 4. set tx point
     SetTxPoint(RtPoint(0, 0, 0), 20);
@@ -18,8 +18,8 @@ int main(int argc, char *argv[])
     RtPoint rxPoints[300];
     for (int i = 0; i < 300; i++)
     {
-        rxPoints[i].x = 0;
-        rxPoints[i].y = i + 1;
+        rxPoints[i].x = i + 1;
+        rxPoints[i].y = 0;
         rxPoints[i].z = 0;
     }
     SetRxPoints(rxPoints, 300, 0.6545);

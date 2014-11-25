@@ -10,6 +10,10 @@ class Geometry
 {
 public:
     GeometryType type;
+    int index; // Each geometry element in the scene has a unique index
+
+private:
+    static int count;
 
 public:
     Geometry();
