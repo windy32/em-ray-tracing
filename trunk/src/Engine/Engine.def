@@ -1,0 +1,14 @@
+EXPORTS
+	Initialize
+
+	AddTriangle
+	AddTriangles
+	AddStlModel
+
+	SetPreprocessMethod
+	SetTxPoint
+	SetRxPoints
+	SetParameters
+
+	Simulate
+	GetRxPowers

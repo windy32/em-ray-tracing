@@ -157,7 +157,7 @@ IntersectResult GridAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPoin
         getIndexInGrid(ray.origin, cur_i, cur_j, cur_k);
     }
 
-    std::map<int, double> rxIntersections;
+    std::map<int, std::pair<double, double> > rxIntersections;
 
     // Start traversing the grid
     while (true)
@@ -176,7 +176,8 @@ IntersectResult GridAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPoin
                     result.distance < minDistance)
                 {
                     RxSphere *s = (RxSphere *)result.geometry;
-                    rxIntersections[s->index] = result.distance;
+                    rxIntersections[s->index].first = result.distance;
+                    rxIntersections[s->index].second = Vector(result.position, s->center).length();
                 }
                 else // triangle
                 {
@@ -188,18 +189,18 @@ IntersectResult GridAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPoin
                 }
             }
         }
-
+        
         if (minResult.hit)
         {
-            std::map<int, double>::iterator it;
+            std::map<int, std::pair<double, double> >::iterator it;
             for (it = rxIntersections.begin(); it != rxIntersections.end(); ++it)
             {
-                if (it->second < minDistance)
+                if (it->second.first < minDistance)
                 {
-                    rxPoints.push_back(RxIntersection(it->first, it->second));
+                    rxPoints.push_back(RxIntersection(it->first, it->second.first, it->second.second));
                 }
             }
-        
+
             return minResult; // There's a bug here, which should be fixed later
         }
 
@@ -290,10 +291,10 @@ IntersectResult GridAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPoin
     }
 
     // Intersect with no triangles
-    std::map<int, double>::iterator it;
+    std::map<int, std::pair<double, double> >::iterator it;
     for (it = rxIntersections.begin(); it != rxIntersections.end(); ++it)
     {
-        rxPoints.push_back(RxIntersection(it->first, it->second));
+        rxPoints.push_back(RxIntersection(it->first, it->second.first, it->second.second));
     }
 
     return IntersectResult(false);

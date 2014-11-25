@@ -90,6 +90,7 @@
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="Point.h" />
     <ClInclude Include="Ray.h" />
+    <ClInclude Include="RxFields.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="Utils.h" />
@@ -105,6 +106,8 @@
     <ClCompile Include="LinearAcc.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="Point.cpp" />
+    <ClCompile Include="Ray.cpp" />
+    <ClCompile Include="RxFields.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Triangle.cpp" />
     <ClCompile Include="Utils.cpp" />

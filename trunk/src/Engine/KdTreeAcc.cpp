@@ -65,7 +65,7 @@ void KdTreeAcc::buildKdTree(KdNode *node, std::vector<Geometry *> &list, int dep
 #define __LOC__ __FILE__ "("__STR1__(__LINE__)") : Warning: "
 #pragma message(__LOC__"Fix this part later")
 
-    if (1) // tunnel->algorithm == Tunnel::KdTreeStandard)
+    if (0) // tunnel->algorithm == Tunnel::KdTreeStandard)
     {
         // Select axis based on depth so that axis cycles through all valid values
         // use order x -> y -> z -> x ...
@@ -147,14 +147,12 @@ void KdTreeAcc::buildKdTree(KdNode *node, std::vector<Geometry *> &list, int dep
         {
             Sphere *s = (Sphere *)list[i];
 
-            if (s->center[axis] - s->radius < median ||
-                s->center[axis] + s->radius < median )
+            if (s->center[axis] - s->radius < median)
             {
                 leftPart.push_back(s);
             }
 
-            if (s->center[axis] - s->radius >= median ||
-                s->center[axis] + s->radius >= median)
+            if (s->center[axis] + s->radius >= median)
             {
                 rightPart.push_back(s);
             }
@@ -369,7 +367,7 @@ IntersectResult KdTreeAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPo
     stack[exPt].pb = ray.origin + ray.direction * b;
     stack[exPt].node = NULL; // Termination flag
 
-    std::map<int, double> rxIntersections;
+    std::map<int, std::pair<double, double> > rxIntersections;
 
     // Loop, traverse through the whole kd-tree
     while (currNode != NULL)
@@ -452,7 +450,8 @@ IntersectResult KdTreeAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPo
                     result.distance < minDistance)
                 {
                     RxSphere *s = (RxSphere *)result.geometry;
-                    rxIntersections[s->index] = result.distance;
+                    rxIntersections[s->index].first = result.distance;
+                    rxIntersections[s->index].second = Vector(result.position, s->center).length();
                 }
                 else // triangle
                 {
@@ -467,12 +466,12 @@ IntersectResult KdTreeAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPo
         
         if (minResult.hit)
         {
-            std::map<int, double>::iterator it;
+            std::map<int, std::pair<double, double> >::iterator it;
             for (it = rxIntersections.begin(); it != rxIntersections.end(); ++it)
             {
-                if (it->second < minDistance)
+                if (it->second.first < minDistance)
                 {
-                    rxPoints.push_back(RxIntersection(it->first, it->second));
+                    rxPoints.push_back(RxIntersection(it->first, it->second.first, it->second.second));
                 }
             }
         
@@ -490,10 +489,10 @@ IntersectResult KdTreeAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPo
     }
 
     // Intersect with no triangles
-    std::map<int, double>::iterator it;
+    std::map<int, std::pair<double, double> >::iterator it;
     for (it = rxIntersections.begin(); it != rxIntersections.end(); ++it)
     {
-        rxPoints.push_back(RxIntersection(it->first, it->second));
+        rxPoints.push_back(RxIntersection(it->first, it->second.first, it->second.second));
     }
 
     // currNode = NULL, ray leaves the scene

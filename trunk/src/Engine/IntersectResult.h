@@ -15,12 +15,14 @@ class Geometry;
 struct RxIntersection
 {
     double distance;
+    double offset; // the offset (length) from the center of rx sphere to the ray
     int index;
 
-    RxIntersection(int index, double distance)
+    RxIntersection(int index, double distance, double offset)
     {
         this->index = index;
         this->distance = distance;
+        this->offset = offset;
     }
 };
 
