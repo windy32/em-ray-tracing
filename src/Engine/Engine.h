@@ -27,6 +27,9 @@ struct RtTriangle
     RtPoint b;
     RtPoint c;
     RtVector n;
+
+    RtTriangle() {}
+    RtTriangle(const RtPoint &a, const RtPoint &b, const RtPoint &c, const RtVector &n) : a(a), b(b), c(c), n(n) {}
 };
 
 enum RtPreprocessMethod
