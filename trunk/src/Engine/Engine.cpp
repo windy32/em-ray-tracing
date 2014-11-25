@@ -419,6 +419,7 @@ void trace(Ray &r, int depth, const ComplexVector &E) // trace with initial fiel
             newRay.state = Ray::MoreReflect; // State is still "MoreReflect"
             newRay.prev_point = result.position;
             newRay.prev_mileage = r.prev_mileage + result.distance;
+            newRay.path.addPoint(result.geometry->index);
 
             trace(newRay, depth + 1, Er);
         }
@@ -475,6 +476,7 @@ void trace(Ray &r, int depth)
             newRay.state = Ray::MoreReflect; // Update state
             newRay.prev_point = result.position;
             newRay.prev_mileage = Vector(r.origin, result.position).length();
+            newRay.path.addPoint(result.geometry->index);
 
             trace(newRay, depth + 1, Er);
         }
