@@ -4,8 +4,11 @@
 
 Geometry::Geometry()
 {
+    index = ++count;
 }
 
 Geometry::~Geometry()
 {
 }
+
+int Geometry::count = 0;
