@@ -7,6 +7,7 @@
 #include "Ray.h"
 #include "Matrix.h"
 #include "Complex.h"
+#include "RxFields.h"
 
 #include "Utils.h"
 #include "Engine.h"
@@ -21,57 +22,9 @@ Accelerator *accelerator = NULL;
 Point txPoint;
 double txPower;
 
-// Rx field
-struct EFields
-{
-    std::map<int, std::vector<ComplexVector> > mapping;
-
-    void AddField(int reflections, const ComplexVector &vector)
-    {
-        if (mapping.count(reflections) == 0)
-        {
-            mapping[reflections] = std::vector<ComplexVector>();
-        }
-        mapping[reflections].push_back(vector);
-    }
-
-    ComplexVector Sum()
-    {
-        ComplexVector sum(
-            ComplexNumber(0, 0),
-            ComplexNumber(0, 0),
-            ComplexNumber(0, 0));
-
-        if (mapping.size() == 0)
-        {
-            return sum;
-        }
-        else
-        {
-            std::map<int, std::vector<ComplexVector> >::iterator it;
-            for (it = mapping.begin(); it != mapping.end(); ++it) // for each number of reflections
-            {
-                int reflections = it->first;
-                ComplexVector avr(
-                    ComplexNumber(0, 0),
-                    ComplexNumber(0, 0),
-                    ComplexNumber(0, 0)); // calculate average field
-
-                for (unsigned int i = 0; i < it->second.size(); i++)
-                {
-                    avr = avr + it->second[i];
-                }
-                avr = avr * (1.0 / it->second.size());
-                sum = sum + avr;
-            }
-            return sum;
-        }
-    }
-};
-
 // Rx points
 std::vector<Point> rxPoints;
-std::vector<EFields> rxFields;
+std::vector<RxFields> rxFields;
 double rxRadius;
 
 // Other parameters
@@ -443,7 +396,7 @@ void trace(Ray &r, int depth, const ComplexVector &E) // trace with initial fiel
             ComplexVector Ez = calc_field_direct(r, rxSpheres[i].distance, E);
 
             // Add to field list
-            rxFields[rxSpheres[i].index].AddField(depth, Ez);
+            rxFields[rxSpheres[i].index].AddField(Ez, r.path, rxSpheres[i].offset);
         }
     }
 
@@ -495,7 +448,7 @@ void trace(Ray &r, int depth)
                 ComplexVector Ez = calc_field_direct(r, rxSpheres[i].distance);
 
                 // Add to field list
-                rxFields[rxSpheres[i].index].AddField(0, Ez);
+                rxFields[rxSpheres[i].index].AddField(Ez, r.path, rxSpheres[i].offset);
             }
         }
     }
@@ -532,7 +485,7 @@ void trace(Ray &r, int depth)
     }
 }
 
-bool Simulate()
+bool Simulate() 
 {
     // Add rx spheres (to scene)
     for (unsigned int i = 0; i < rxPoints.size(); i++)
@@ -540,7 +493,7 @@ bool Simulate()
         scene.push_back(new RxSphere(rxPoints[i], rxRadius, i));
 
         // Initialize containers for fields
-        rxFields.push_back(EFields());
+        rxFields.push_back(RxFields());
     }
 
     // Calculate automatic parameters
@@ -577,6 +530,7 @@ bool Simulate()
         fprintf(stderr, "\rSimulating [%d / %d]", i + 1, nTheta);
     }
     fprintf(stderr, "\n");
+    Utils::PrintTime("Sinulation finished");
 
     return true;
 }
