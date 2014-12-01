@@ -380,6 +380,15 @@ double calc_power(const ComplexVector &E)
     return 10 * log10(watt) + 30.0; // dBm
 }
 
+double calc_sphere_area(double theta1, double theta2, double phi1, double phi2)
+{
+    // Area = int_theta1_theta2(int_phi1_phi2(r^2 * sin(phi) * d(phi) * d(theta))
+    //      = int_theta1_theta2(int_phi1_phi2(sin(phi) * d(phi)) * d(theta))
+    //      = int_theta1_theta2(-cos(phi2) + cos(phi1)) * d(theta)
+    //      = (theta2 - theta1) * [cos(phi1) - cos(phi2)]
+    return (theta2 - theta1) * (cos(phi1) - cos(phi2));
+}
+
 void trace(Ray &r, int depth, const ComplexVector &E) // trace with initial field
 {
     std::vector<RxIntersection> rxSpheres;
@@ -415,7 +424,7 @@ void trace(Ray &r, int depth, const ComplexVector &E) // trace with initial fiel
             Vector nl = (n.dot(r.direction) < 0) ? n : n * -1; // points to the ray
             Vector v = r.direction - nl * 2 * nl.dot(r.direction);
 
-            Ray newRay(result.position, v);
+            Ray newRay(result.position, v, r.unit_surface_area);
             newRay.state = Ray::MoreReflect; // State is still "MoreReflect"
             newRay.prev_point = result.position;
             newRay.prev_mileage = r.prev_mileage + result.distance;
@@ -472,7 +481,7 @@ void trace(Ray &r, int depth)
             Vector nl = (n.dot(r.direction) < 0) ? n : n * -1; // points to the ray
             Vector v = r.direction - nl * 2 * nl.dot(r.direction);
 
-            Ray newRay(result.position, v);
+            Ray newRay(result.position, v, r.unit_surface_area);
             newRay.state = Ray::MoreReflect; // Update state
             newRay.prev_point = result.position;
             newRay.prev_mileage = Vector(r.origin, result.position).length();
@@ -526,7 +535,13 @@ bool Simulate()
             double theta = i * PI * 2.0 / nTheta;
             double phi = (j + 0.5) * PI / nPhi;
 
-            Ray ray(txPoint, Vector(sin(phi) * cos(theta), sin(phi) * sin(theta), cos(phi)));
+            double theta1 = i * PI * 2.0 / nTheta;
+            double theta2 = (i + 1) * PI * 2.0 / nTheta;
+            double phi1 = j * PI / nPhi;
+            double phi2 = (j + 1) * PI / nPhi;
+            double unitSufaceArea = calc_sphere_area(theta1, theta2, phi1, phi2);
+
+            Ray ray(txPoint, Vector(sin(phi) * cos(theta), sin(phi) * sin(theta), cos(phi)), unitSufaceArea);
             trace(ray, 0);
         }
         fprintf(stderr, "\rSimulating [%d / %d]", i + 1, nTheta);
