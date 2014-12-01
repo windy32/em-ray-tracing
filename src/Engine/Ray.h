@@ -45,8 +45,12 @@ struct Ray
     // reflection path
     RayPath path;
 
-    Ray(const Point &origin, const Vector &direction) 
-        : origin(origin), direction(direction), state(Start), prev_mileage(0), prev_point(origin)
+    // ray tube
+    double unit_surface_area;
+
+    Ray(const Point &origin, const Vector &direction, double unitSurfaceArea) 
+        : origin(origin), direction(direction), unit_surface_area(unitSurfaceArea),
+          state(Start), prev_mileage(0), prev_point(origin)
     {
     }
 
