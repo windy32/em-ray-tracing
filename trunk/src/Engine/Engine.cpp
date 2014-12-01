@@ -404,6 +404,13 @@ void trace(Ray &r, int depth, const ComplexVector &E) // trace with initial fiel
             // Calculate field
             ComplexVector Ez = calc_field_direct(r, rxSpheres[i].distance, E);
 
+            // Calculate zoom factor
+            double mileage = r.prev_mileage + rxSpheres[i].distance;
+            double projectionArea = r.unit_surface_area * mileage * mileage;
+            double rxSphereArea = PI * rxSpheres[i].radius * rxSpheres[i].radius;
+            if (projectionArea < rxSphereArea)
+                Ez = Ez * sqrt(projectionArea / rxSphereArea);
+
             // Add to field list
             rxFields[rxSpheres[i].index].AddField(Ez, r.path, rxSpheres[i].offset);
         }
