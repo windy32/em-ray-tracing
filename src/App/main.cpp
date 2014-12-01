@@ -123,7 +123,7 @@ void tunnel()
         rxPoints[i].y = 300 * sin(theta);
         rxPoints[i].z = 4.0;
     }
-    SetRxPoints(rxPoints, 300, 0.5);
+    SetRxPoints(rxPoints, 300, 0.6545);
 
     // 5. set parameters
     SetParameters(

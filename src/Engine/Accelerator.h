@@ -4,6 +4,13 @@
 #include <vector>
 #include "Geometry.h"
 
+struct RxSphereInfo // Used by accelerators
+{
+    double distance;
+    double offset;
+    double radius;
+};
+
 class Accelerator 
 {
 protected:

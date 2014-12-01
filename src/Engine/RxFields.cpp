@@ -40,7 +40,6 @@ ComplexVector RxFields::Sum()
                     minField = it->second[i].field;
                 }
             }
-
             sum = sum + minField;
         }
         return sum;

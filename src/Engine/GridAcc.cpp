@@ -157,7 +157,7 @@ IntersectResult GridAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPoin
         getIndexInGrid(ray.origin, cur_i, cur_j, cur_k);
     }
 
-    std::map<int, std::pair<double, double> > rxIntersections;
+    std::map<int, RxSphereInfo> rxIntersections;
 
     // Start traversing the grid
     while (true)
@@ -176,8 +176,9 @@ IntersectResult GridAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPoin
                     result.distance < minDistance)
                 {
                     RxSphere *s = (RxSphere *)result.geometry;
-                    rxIntersections[s->index].first = result.distance;
-                    rxIntersections[s->index].second = Vector(result.position, s->center).length();
+                    rxIntersections[s->index].distance = result.distance;
+                    rxIntersections[s->index].offset = Vector(result.position, s->center).length();
+                    rxIntersections[s->index].radius = s->radius;
                 }
                 else // triangle
                 {
@@ -192,12 +193,13 @@ IntersectResult GridAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPoin
         
         if (minResult.hit)
         {
-            std::map<int, std::pair<double, double> >::iterator it;
+            std::map<int, RxSphereInfo>::iterator it;
             for (it = rxIntersections.begin(); it != rxIntersections.end(); ++it)
             {
-                if (it->second.first < minDistance)
+                if (it->second.distance < minDistance)
                 {
-                    rxPoints.push_back(RxIntersection(it->first, it->second.first, it->second.second));
+                    rxPoints.push_back(
+                        RxIntersection(it->first, it->second.distance, it->second.offset, it->second.radius));
                 }
             }
 
@@ -291,10 +293,11 @@ IntersectResult GridAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPoin
     }
 
     // Intersect with no triangles
-    std::map<int, std::pair<double, double> >::iterator it;
+    std::map<int, RxSphereInfo>::iterator it;
     for (it = rxIntersections.begin(); it != rxIntersections.end(); ++it)
     {
-        rxPoints.push_back(RxIntersection(it->first, it->second.first, it->second.second));
+        rxPoints.push_back(
+            RxIntersection(it->first, it->second.distance, it->second.offset, it->second.radius));
     }
 
     return IntersectResult(false);

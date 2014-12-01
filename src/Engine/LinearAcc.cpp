@@ -10,10 +10,11 @@ IntersectResult LinearAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPo
 {
     // Intersection points with rx spheres
     //    - Key: rx sphere index
-    //    - Value 1 (first): distance - distance from the origin of the ray to the intersection point
-    //    - Value 2 (second): offset - distance from the intersection point to the center of rx sphere
+    //    - Value: rx sphere info (distance, offset, radius)
+    //       - distance: distance from the origin of the ray to the intersection point
+    //       - offset: distance from the intersection point to the center of rx sphere
     // Note: A ray may intersect with rx spheres even when result.hit = false
-    std::map<int, std::pair<double, double> > rxIntersections;
+    std::map<int, RxSphereInfo> rxIntersections;
 
     double minDistance = DBL_MAX;
     IntersectResult minResult(false);
@@ -27,8 +28,9 @@ IntersectResult LinearAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPo
                 result.distance < minDistance)
             {
                 RxSphere *s = (RxSphere *)result.geometry;
-                rxIntersections[s->index].first = result.distance;
-                rxIntersections[s->index].second = Vector(result.position, s->center).length();
+                rxIntersections[s->index].distance = result.distance;
+                rxIntersections[s->index].offset = Vector(result.position, s->center).length();
+                rxIntersections[s->index].radius = s->radius;
             }
             else // triangle
             {
@@ -41,12 +43,13 @@ IntersectResult LinearAcc::intersect(Ray &ray, std::vector<RxIntersection> &rxPo
         }
     }
 
-    std::map<int, std::pair<double, double> >::iterator it;
+    std::map<int, RxSphereInfo>::iterator it;
     for (it = rxIntersections.begin(); it != rxIntersections.end(); ++it)
     {
-        if (it->second.first < minDistance)
+        if (it->second.distance < minDistance)
         {
-            rxPoints.push_back(RxIntersection(it->first, it->second.first, it->second.second));
+            rxPoints.push_back(
+                RxIntersection(it->first, it->second.distance, it->second.offset, it->second.radius));
         }
     }
 

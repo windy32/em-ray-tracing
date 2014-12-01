@@ -17,12 +17,14 @@ struct RxIntersection
     double distance;
     double offset; // the offset (length) from the center of rx sphere to the ray
     int index;
+    double radius; // radius of the rx sphere
 
-    RxIntersection(int index, double distance, double offset)
+    RxIntersection(int index, double distance, double offset, double radius)
     {
         this->index = index;
         this->distance = distance;
         this->offset = offset;
+        this->radius = radius;
     }
 };
 
